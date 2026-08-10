@@ -5,7 +5,11 @@
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "src",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -20,9 +24,25 @@
     "check-types": "tsc -p tsconfig.build.json --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["homography", "matrix3d", "perspective", "css-transform", "photo"],
+  "keywords": [
+    "homography",
+    "matrix3d",
+    "perspective",
+    "css-transform",
+    "photo"
+  ],
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kneuroth/image-aware-elements.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/kneuroth/image-aware-elements/tree/main/packages/core#readme",
+  "bugs": "https://github.com/kneuroth/image-aware-elements/issues"
 }

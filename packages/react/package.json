@@ -5,7 +5,11 @@
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "src",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -30,5 +34,15 @@
     "@types/react": "^19.2.7",
     "react": "^19.2.3",
     "typescript": "^5.9.3"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kneuroth/image-aware-elements.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/kneuroth/image-aware-elements/tree/main/packages/react#readme",
+  "bugs": "https://github.com/kneuroth/image-aware-elements/issues"
 }
