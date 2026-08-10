@@ -1,6 +1,6 @@
 {
   "name": "@image-aware/editor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mark flat surfaces on a photo and export the manifest that @image-aware/element renders against.",
   "license": "MIT",
   "type": "module",

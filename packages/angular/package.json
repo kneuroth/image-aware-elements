@@ -1,6 +1,6 @@
 {
   "name": "@image-aware/angular",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Angular bindings for <image-surface>: render live HTML onto flat surfaces in a photograph.",
   "license": "MIT",
   "type": "module",
