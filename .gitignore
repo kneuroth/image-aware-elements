@@ -11,3 +11,6 @@ blob-report/
 
 # Personal scratch space for trying the library as a user would.
 .sandbox/
+
+# Local Claude Code settings, personal to a machine.
+.claude/
