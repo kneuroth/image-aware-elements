@@ -1,0 +1,25 @@
+{
+  "name": "@image-aware-example/angular",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "ng serve --port 5182",
+    "build": "ng build",
+    "check-types": "tsc -p tsconfig.app.json --noEmit"
+  },
+  "dependencies": {
+    "@angular/common": "^20.2.1",
+    "@angular/compiler": "^20.2.1",
+    "@angular/core": "^20.2.1",
+    "@angular/platform-browser": "^20.2.1",
+    "@image-aware/angular": "workspace:*",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.2.0",
+    "@angular/cli": "^20.2.0",
+    "@angular/compiler-cli": "^20.2.1",
+    "typescript": "~5.9.3"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+.DS_Store
+*:Zone.Identifier
+test-results/
+playwright-report/
+blob-report/
+.angular/
+
+# Personal scratch space for trying the library as a user would.
+.sandbox/

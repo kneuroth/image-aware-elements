@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>image-aware E2E harness</title>
+    <style>
+      html, body { margin: 0; background: #000; }
+      #stage { width: 800px; height: 500px; }
+      image-surface { width: 100%; height: 100%; }
+
+      /* Zero-sized probes. A projective transform maps a point to a point, so
+         each probe's bounding rect IS the projected design-space corner as the
+         browser actually computed it — no sampling or tolerance fudging. */
+      .probe-root { position: relative; width: 100%; height: 100%; }
+      .probe { position: absolute; width: 0; height: 0; }
+
+      .content {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #123, #012);
+        color: #cfe4ff;
+        font: 40px/1.3 ui-sans-serif, system-ui, sans-serif;
+        padding: 40px;
+        box-sizing: border-box;
+      }
+      #hit {
+        font: 32px ui-sans-serif, system-ui, sans-serif;
+        padding: 20px 30px;
+        margin-top: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <image-surface id="surface" src="/desk.svg" manifest="/desk.surfaces.json" fit="contain">
+        <div class="probe-root" slot="laptop-screen">
+          <div class="content">
+            Selectable harness text
+            <button type="button" id="hit">hit me</button>
+          </div>
+          <div class="probe" data-corner="0" style="left: 0px; top: 0px"></div>
+          <div class="probe" data-corner="1" style="left: 1280px; top: 0px"></div>
+          <div class="probe" data-corner="2" style="left: 1280px; top: 800px"></div>
+          <div class="probe" data-corner="3" style="left: 0px; top: 800px"></div>
+        </div>
+
+        <div class="probe-root" slot="phone-screen">
+          <div class="probe" data-phone="0" style="left: 0px; top: 0px"></div>
+          <div class="probe" data-phone="1" style="left: 390px; top: 0px"></div>
+          <div class="probe" data-phone="2" style="left: 390px; top: 844px"></div>
+          <div class="probe" data-phone="3" style="left: 0px; top: 844px"></div>
+        </div>
+      </image-surface>
+    </div>
+
+    <script type="module">
+      import '@image-aware/element/auto';
+
+      const el = document.querySelector('#surface');
+      window.__ready = new Promise((resolve) => {
+        el.addEventListener('image-surface-layout', () => resolve(true), { once: true });
+      });
+
+      document.querySelector('#hit').addEventListener('click', () => {
+        window.__hits = (window.__hits ?? 0) + 1;
+      });
+
+      /** Resize the stage and wait for the element to lay out again. */
+      window.__resize = (width, height) => {
+        const stage = document.querySelector('#stage');
+        return new Promise((resolve) => {
+          el.addEventListener('image-surface-layout', () => resolve(true), { once: true });
+          stage.style.width = `${width}px`;
+          stage.style.height = `${height}px`;
+        });
+      };
+
+      window.__setFit = (fit) =>
+        new Promise((resolve) => {
+          el.addEventListener('image-surface-layout', () => resolve(true), { once: true });
+          el.setAttribute('fit', fit);
+        });
+
+      /** Where the browser actually put each probe, in viewport coordinates. */
+      window.__probes = (selector) =>
+        [...document.querySelectorAll(selector)].map((node) => {
+          const r = node.getBoundingClientRect();
+          return [r.x, r.y];
+        });
+
+      /** What the maths says those corners should be, in viewport coordinates. */
+      window.__expected = (surfaceId) => {
+        const host = el.getBoundingClientRect();
+        const rect = el.layout.imageRect;
+        const manifest = window.__manifest;
+        const surface = manifest.surfaces.find((s) => s.id === surfaceId);
+        return surface.corners.map(([nx, ny]) => [
+          host.left + rect.x + nx * rect.width,
+          host.top + rect.y + ny * rect.height,
+        ]);
+      };
+
+      window.__manifest = await fetch('/desk.surfaces.json').then((r) => r.json());
+      window.__layout = () => el.layout;
+    </script>
+  </body>
+</html>

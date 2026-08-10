@@ -1,0 +1,30 @@
+{
+  "name": "image-aware-elements",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "check-types": "turbo run check-types",
+    "release": "turbo run build && changeset publish",
+    "editor": "pnpm --filter @image-aware/editor dev",
+    "mark": "turbo run build --filter=@image-aware/editor && image-aware",
+    "sandbox": "vite .sandbox --port 5170 --strictPort"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "@image-aware/editor": "workspace:*",
+    "@image-aware/element": "workspace:*",
+    "@playwright/test": "^1.56.0",
+    "turbo": "^2.9.12",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^3.2.4"
+  }
+}

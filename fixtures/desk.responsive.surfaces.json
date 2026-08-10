@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "image": {
+    "src": "desk.svg",
+    "width": 1600,
+    "height": 1000
+  },
+  "surfaces": [
+    {
+      "id": "laptop-screen",
+      "label": "Laptop screen",
+      "corners": [
+        [0.2625, 0.31],
+        [0.6125, 0.255],
+        [0.65625, 0.64],
+        [0.2375, 0.59]
+      ],
+      "resolution": [1280, 800],
+      "clip": true,
+      "z": 1
+    }
+  ],
+  "variants": [
+    {
+      "media": "(max-width: 500px)",
+      "flat": true
+    },
+    {
+      "media": "(max-width: 900px)",
+      "fit": "cover",
+      "objectPosition": "100% 50%"
+    }
+  ]
+}

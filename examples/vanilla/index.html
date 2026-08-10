@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>image-aware — landing page</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: #0b0d11;
+        color: #e8ecf2;
+      }
+
+      /*
+        The photo is the page background: pinned to the viewport and cropped with
+        object-fit, exactly as a real hero would be. The menu tracks the cropped
+        photo rather than the element box, so it stays on the laptop at every
+        window size.
+      */
+      image-surface {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      /*
+        Below 480px the manifest switches this variant to flat: the projection
+        stops and the menu becomes ordinary blocks. A pinned element cannot hold
+        a document that now has real height, so hand the page back to normal flow.
+        `data-flat` is the element's hook for exactly this.
+      */
+      image-surface[data-flat] {
+        position: static;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: clamp(1rem, 3vw, 2.5rem);
+        pointer-events: none;
+      }
+      .page > * {
+        pointer-events: auto;
+      }
+
+      image-surface[data-flat] + .page {
+        min-height: 0;
+      }
+
+      .caption {
+        max-width: 34ch;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: #b9c4d4;
+        text-shadow: 0 1px 6px rgb(0 0 0 / 0.8);
+      }
+      .caption strong {
+        display: block;
+        font-size: 0.95rem;
+        color: #fff;
+        margin-bottom: 0.3rem;
+      }
+      .caption code {
+        color: #f0a868;
+      }
+
+      /*
+        Everything below styles the menu. It is ordinary light-DOM markup —
+        nothing here knows it is being projected onto a photograph.
+
+        Lengths are in the surface's own design space, 646 x 432 per the manifest.
+        Type is deliberately large in that space: the surface renders at roughly
+        0.8x on a tablet, so a 30px design-space target lands near 24 real px.
+      */
+      .menu {
+        width: 100%;
+        height: 100%;
+        padding: 34px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        background: linear-gradient(158deg, #16202f 0%, #0a1119 62%, #080d14 100%);
+        color: #e9eff8;
+      }
+
+      .brand {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #f0a868;
+      }
+      .brand::before {
+        content: '';
+        width: 20px;
+        height: 1px;
+        background: #f0a868;
+      }
+
+      .menu ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .menu a {
+        display: block;
+        padding: 9px 0;
+        font-size: 30px;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid rgb(255 255 255 / 0.07);
+      }
+      .menu a:hover {
+        color: #f0a868;
+      }
+      .menu a:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 3px;
+      }
+
+      .menu .cta {
+        margin-top: auto;
+        align-self: flex-start;
+        padding: 11px 22px;
+        border: 0;
+        border-bottom: 0;
+        border-radius: 7px;
+        background: #f0a868;
+        color: #1a1005;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+      }
+      .menu .cta:hover {
+        background: #ffbd83;
+        color: #1a1005;
+      }
+
+      /*
+        The second surface: the cube's front face, 92 x 106 design px. That is the
+        whole design space, so "22px" here really is a quarter of the width.
+      */
+      .cube {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        background: rgb(9 11 15 / 0.85);
+        color: #f0a868;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      /*
+        Flat mode. Design-space lengths mean nothing once the projection is gone,
+        so the whole scale resets to ordinary page units and the menu becomes a
+        normal nav under the photo.
+      */
+      image-surface[data-flat] .menu {
+        height: auto;
+        padding: 1.25rem 1.25rem 2rem;
+        gap: 0.75rem;
+        background: #0b0d11;
+      }
+      image-surface[data-flat] .menu a {
+        padding: 0.85rem 0;
+        font-size: 1.35rem;
+      }
+      /* A 92px-wide badge has no meaning as a block; drop it rather than stack it. */
+      image-surface[data-flat] .cube {
+        display: none;
+      }
+      image-surface[data-flat] .menu .cta {
+        margin-top: 0.75rem;
+        align-self: stretch;
+        text-align: center;
+        padding: 0.9rem 1.25rem;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <image-surface src="/opportunities.jpg" manifest="/opportunities.surfaces.json" fit="cover">
+      <nav class="menu" slot="laptop-screen" aria-label="Main">
+        <p class="brand">Northwind Studio</p>
+        <ul>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#studio">Studio</a></li>
+          <li><a href="#journal">Journal</a></li>
+        </ul>
+        <a class="cta" href="#start">Start a project</a>
+      </nav>
+
+      <div class="cube" slot="cube-face">3&times;3</div>
+    </image-surface>
+
+    <div class="page">
+      <p class="caption">
+        <strong>A real menu, on a real photograph</strong>
+        Tab through it, select the text, resize the window. Between 480 and 900px the manifest
+        re-crops the photo to keep the laptop in frame; under 480px it gives up on projection and
+        the menu becomes an ordinary <code>&lt;nav&gt;</code>.
+      </p>
+    </div>
+
+    <script type="module">
+      import '@image-aware/element/auto';
+    </script>
+  </body>
+</html>

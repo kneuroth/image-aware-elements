@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "image": {
+    "src": "opportunities.jpg",
+    "width": 1616,
+    "height": 1080
+  },
+  "surfaces": [
+    {
+      "id": "laptop-screen",
+      "label": "Laptop Screen",
+      "corners": [
+        [0.5732168461826496, 0.30445857505391505],
+        [0.8839628733905943, 0.3006369193001002],
+        [0.8218136679490053, 0.6191082321180029],
+        [0.5178785125702758, 0.6407642813896204]
+      ],
+      "resolution": [646, 432],
+      "clip": true,
+      "z": 0
+    },
+    {
+      "id": "cube-face",
+      "label": "Rubik's cube, front face",
+      "corners": [
+        [0.40223, 0.6213],
+        [0.45854, 0.61296],
+        [0.45854, 0.71296],
+        [0.40223, 0.71852]
+      ],
+      "resolution": [92, 106],
+      "clip": true,
+      "z": 1
+    }
+  ],
+  "variants": [
+    {
+      "media": "(max-width: 480px)",
+      "flat": true
+    },
+    {
+      "media": "(max-width: 900px)",
+      "objectPosition": "85% 50%"
+    }
+  ]
+}

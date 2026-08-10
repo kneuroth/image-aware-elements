@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "image": {
+    "src": "desk.svg",
+    "width": 1600,
+    "height": 1000
+  },
+  "camera": {
+    "focalPx": 1920
+  },
+  "surfaces": [
+    {
+      "id": "laptop-screen",
+      "label": "Laptop screen",
+      "corners": [
+        [0.2625, 0.31],
+        [0.6125, 0.255],
+        [0.65625, 0.64],
+        [0.2375, 0.59]
+      ],
+      "resolution": [1280, 800],
+      "clip": true,
+      "z": 1
+    },
+    {
+      "id": "phone-screen",
+      "label": "Phone screen",
+      "corners": [
+        [0.7375, 0.56],
+        [0.83125, 0.585],
+        [0.80625, 0.835],
+        [0.70625, 0.8]
+      ],
+      "resolution": [390, 844],
+      "clip": true,
+      "z": 2
+    }
+  ]
+}

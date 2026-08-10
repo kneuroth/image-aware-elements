@@ -1,0 +1,694 @@
+/*
+  The editor is a measuring instrument, not a dashboard, so it borrows from
+  photogrammetry benches: cool graphite chrome that never competes with the
+  photo, survey-marker orange for the surface you are working on, calibration
+  cyan for the ones you are not, and monospace almost everywhere — because
+  almost everything on screen is a number that needs to line up in a column.
+*/
+:root {
+  --bench: #16191f;
+  --bench-raised: #1e232b;
+  --bench-sunk: #101319;
+  --rule: #2c333e;
+  --rule-bright: #3a4351;
+
+  --ink: #e3e8ef;
+  --ink-dim: #8a96a8;
+  --ink-faint: #5d6878;
+
+  --mark: #ff6b35;
+  --calib: #35d6d0;
+  --warn: #ffb627;
+  --danger: #ff4d4d;
+
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --rail-left: 232px;
+  --rail-right: 304px;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bench-sunk);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; color: inherit; }
+
+/* ── Frame ─────────────────────────────────────────────────────────────── */
+
+.bench {
+  display: grid;
+  grid-template-columns: var(--rail-left) minmax(0, 1fr) var(--rail-right);
+  grid-template-rows: 48px minmax(0, 1fr) 30px;
+  grid-template-areas:
+    'masthead masthead masthead'
+    'left     well     right'
+    'status   status   status';
+  height: 100vh;
+}
+
+.masthead {
+  grid-area: masthead;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 14px;
+  background: var(--bench-raised);
+  border-bottom: 1px solid var(--rule);
+}
+
+.lockup { display: flex; align-items: center; gap: 9px; }
+
+/* A registration target: the tool's own logo is the thing it helps you place. */
+.reticle {
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--mark);
+  border-radius: 50%;
+  position: relative;
+  flex: none;
+}
+.reticle::before,
+.reticle::after {
+  content: '';
+  position: absolute;
+  background: var(--mark);
+}
+.reticle::before { left: 50%; top: -4px; bottom: -4px; width: 1px; transform: translateX(-50%); }
+.reticle::after { top: 50%; left: -4px; right: -4px; height: 1px; transform: translateY(-50%); }
+
+.wordmark {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.file {
+  color: var(--ink-dim);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.masthead-actions { margin-left: auto; display: flex; gap: 8px; }
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+
+.btn {
+  background: var(--bench);
+  border: 1px solid var(--rule-bright);
+  color: var(--ink-dim);
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: color 120ms, border-color 120ms, background 120ms;
+}
+.btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+.btn:focus-visible { outline: 2px solid var(--calib); outline-offset: 1px; }
+.btn[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+.btn-primary { border-color: var(--mark); color: var(--mark); }
+.btn-primary:hover { background: color-mix(in srgb, var(--mark) 14%, transparent); color: var(--mark); }
+
+.btn[aria-pressed='true'] { border-color: var(--calib); color: var(--calib); }
+
+.btn-block { width: 100%; }
+.btn-icon { padding: 5px 9px; min-width: 30px; }
+
+/* ── Rails ─────────────────────────────────────────────────────────────── */
+
+.rail {
+  background: var(--bench-raised);
+  padding: 14px 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rail-left { grid-area: left; border-right: 1px solid var(--rule); }
+.rail-right { grid-area: right; border-left: 1px solid var(--rule); }
+
+.rail-title {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.register { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.register-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  background: var(--bench);
+  color: var(--ink-dim);
+}
+.register-item:hover { color: var(--ink); }
+.register-item[aria-selected='true'] {
+  border-color: var(--mark);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--mark) 10%, var(--bench));
+}
+.register-item:focus-visible { outline: 2px solid var(--calib); outline-offset: 1px; }
+
+.swatch { width: 8px; height: 8px; border-radius: 1px; flex: none; background: var(--calib); }
+.register-item[aria-selected='true'] .swatch { background: var(--mark); }
+
+.register-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.register-res { font-size: 10px; color: var(--ink-faint); }
+.register-flag { color: var(--danger); font-size: 12px; }
+
+/* ── Stage ─────────────────────────────────────────────────────────────── */
+
+.well {
+  grid-area: well;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, #0c0f14 25%, transparent 25%) 0 0 / 22px 22px,
+    linear-gradient(-45deg, #0c0f14 25%, transparent 25%) 0 11px / 22px 22px,
+    linear-gradient(45deg, transparent 75%, #0c0f14 75%) 11px -11px / 22px 22px,
+    linear-gradient(-45deg, transparent 75%, #0c0f14 75%) -11px 0 / 22px 22px,
+    var(--bench-sunk);
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.stage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+.well.is-panning { cursor: grabbing; }
+.well.can-pan { cursor: grab; }
+
+/* Overlay geometry. Strokes are non-scaling so they stay hairline at any zoom. */
+.quad-fill { fill: color-mix(in srgb, var(--calib) 12%, transparent); }
+.quad-edge { fill: none; stroke: var(--calib); stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.quad.is-active .quad-fill { fill: color-mix(in srgb, var(--mark) 14%, transparent); }
+.quad.is-active .quad-edge { stroke: var(--mark); stroke-width: 1.5; }
+.quad.is-invalid .quad-fill { fill: color-mix(in srgb, var(--danger) 16%, transparent); }
+.quad.is-invalid .quad-edge { stroke: var(--danger); stroke-dasharray: 5 4; }
+
+.quad-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--calib);
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.quad.is-active .quad-label { fill: var(--mark); }
+
+/*
+  Handles are open crosshairs rather than dots. A filled dot covers the exact
+  pixel you are trying to place, which is the one thing this tool exists to get
+  right; the gap in the middle leaves it visible.
+*/
+.handle { cursor: crosshair; }
+.handle-arm { stroke: var(--mark); stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.handle-ring { fill: none; stroke: var(--mark); stroke-width: 1; opacity: 0.5; vector-effect: non-scaling-stroke; }
+.handle-hit { fill: transparent; }
+.handle:hover .handle-arm,
+.handle.is-active .handle-arm { stroke: #fff; }
+.handle:hover .handle-ring,
+.handle.is-active .handle-ring { opacity: 1; stroke: #fff; }
+.handle-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  fill: var(--mark);
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+/* ── Loupe — the signature element ─────────────────────────────────────── */
+
+.loupe {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--rule-bright);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.6);
+  pointer-events: none;
+  z-index: 20;
+  background: var(--bench-sunk);
+}
+.loupe img {
+  position: absolute;
+  image-rendering: pixelated;
+  transform-origin: 0 0;
+  max-width: none;
+}
+.loupe-reticle { position: absolute; inset: 0; }
+.loupe-reticle::before,
+.loupe-reticle::after { content: ''; position: absolute; background: var(--mark); }
+.loupe-reticle::before { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+.loupe-reticle::after { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+
+.zoombar {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  background: color-mix(in srgb, var(--bench-raised) 92%, transparent);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  z-index: 15;
+}
+.zoom-readout { min-width: 44px; text-align: center; font-size: 11px; color: var(--ink-dim); }
+
+.dropzone {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  text-align: center;
+  background: var(--bench-sunk);
+  z-index: 10;
+}
+.dropzone[hidden] { display: none; }
+.dropzone.is-hot { background: color-mix(in srgb, var(--mark) 12%, var(--bench-sunk)); }
+.dropzone-title { margin: 0; font-family: var(--sans); font-size: 15px; color: var(--ink-dim); }
+.dropzone-sub { margin: 0; font-size: 11px; color: var(--ink-faint); }
+.dropzone code { color: var(--mark); }
+
+.preview-holder { position: absolute; inset: 0; z-index: 12; background: var(--bench-sunk); padding: 22px; }
+.preview-holder[hidden] { display: none; }
+.preview-holder image-surface { width: 100%; height: 100%; }
+
+/* Test pattern rendered through the real runtime, so preview is WYSIWYG. */
+.pattern {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4%;
+  color: #04121a;
+  background:
+    repeating-linear-gradient(to right, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 10%),
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 10%),
+    linear-gradient(135deg, #35d6d0, #1a8f9b);
+  font-family: var(--mono);
+}
+.pattern-id { font-size: 6cqw; font-weight: 700; letter-spacing: -0.01em; }
+.pattern-res { font-size: 3.4cqw; opacity: 0.75; }
+.pattern-foot { display: flex; justify-content: space-between; font-size: 3cqw; opacity: 0.75; }
+
+/* ── Inspector ─────────────────────────────────────────────────────────── */
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.input {
+  background: var(--bench-sunk);
+  border: 1px solid var(--rule-bright);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 12px;
+  width: 100%;
+}
+.input:focus-visible { outline: none; border-color: var(--calib); }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.coords { display: grid; grid-template-columns: auto 1fr 1fr; gap: 3px 10px; align-items: center; }
+.coords-key { color: var(--ink-faint); font-size: 11px; }
+.coords-val { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+.coords-row.is-active .coords-key,
+.coords-row.is-active .coords-val { color: var(--mark); }
+.coords-row { display: contents; }
+
+.divider { height: 1px; background: var(--rule); margin: 2px 0; }
+
+.slider-row { display: grid; grid-template-columns: 34px 1fr 58px; gap: 8px; align-items: center; }
+.slider-row label { font-size: 11px; color: var(--ink-dim); }
+.slider-row output { font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type='range']::-webkit-slider-runnable-track { height: 2px; background: var(--rule-bright); }
+input[type='range']::-moz-range-track { height: 2px; background: var(--rule-bright); }
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px; height: 11px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--mark);
+}
+input[type='range']::-moz-range-thumb {
+  width: 11px; height: 11px; border: 0; border-radius: 50%; background: var(--mark);
+}
+input[type='range']:focus-visible { outline: 2px solid var(--calib); outline-offset: 3px; }
+
+.check { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-dim); }
+.check input { accent-color: var(--mark); }
+
+.notice {
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-radius: 3px;
+  border-left: 2px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: #ffc9c9;
+}
+
+.empty {
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-faint);
+}
+
+/* ── Status ────────────────────────────────────────────────────────────── */
+
+.status {
+  grid-area: status;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  background: var(--bench-raised);
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.status-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.status-hint { margin-left: auto; overflow: hidden; text-overflow: ellipsis; }
+.status-ok { color: var(--calib); }
+.status-bad { color: var(--danger); }
+
+@media (max-width: 1080px) {
+  .bench {
+    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-rows: 48px minmax(0, 1fr) 220px 30px;
+    grid-template-areas:
+      'masthead masthead'
+      'left     well'
+      'right    right'
+      'status   status';
+  }
+  .rail-right { border-left: 0; border-top: 1px solid var(--rule); }
+  .status-hint { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0ms !important; }
+}
+
+/* ---- Preview: variants and viewport presets ------------------------------ */
+
+.preview-holder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* The variant that this viewport would really select, as opposed to the one
+   being inspected. Ordering is load-bearing, so it has to be visible. */
+.preview-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bench);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+/* Laid out at true preset size and merely displayed scaled, so every measurement
+   in the report is the size a real device would produce. */
+.preview-scaler {
+  position: relative;
+  outline: 1px solid var(--rule-bright);
+}
+
+.preview-scaler::after {
+  content: attr(data-scale);
+  position: absolute;
+  right: 0;
+  top: 100%;
+  padding-top: 3px;
+  font: 10px/1 var(--mono);
+  color: var(--ink-faint);
+}
+
+.preview-frame {
+  position: relative;
+  transform-origin: 0 0;
+  background: var(--bench-sunk);
+  overflow: hidden;
+}
+
+.preview-holder image-surface {
+  width: 100%;
+  height: 100%;
+}
+
+.preview-report {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 132px;
+  overflow-y: auto;
+}
+
+.preview-line {
+  margin: 0;
+  font: 11px/1.5 var(--mono);
+  padding-left: 14px;
+  position: relative;
+  color: var(--ink-dim);
+}
+.preview-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.preview-line.is-ok { color: var(--ink-dim); }
+.preview-line.is-warn { color: var(--warn); }
+.preview-line.is-bad { color: var(--danger); }
+
+/* Zoom and fit belong to the marking stage; in preview they do nothing and sat
+   on top of the report. The preview has its own scale readout under the frame. */
+.preview-holder:not([hidden]) ~ .zoombar {
+  display: none;
+}
+
+/* ---- Preview: viewport-driven framing ----------------------------------- */
+
+.preview-summary {
+  font: 11px/1.5 var(--sans);
+  color: var(--ink-dim);
+  flex: 1;
+}
+
+/* A viewport that has framing of its own, so the row reads as an overview. */
+.btn.has-variant { position: relative; }
+.btn.has-variant::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--calib);
+}
+
+.preview-placement .input { width: 148px; }
+
+.preview-frame { cursor: grab; touch-action: none; }
+.preview-frame.is-grabbing { cursor: grabbing; }
+
+/* ---- Preview: placing a floating surface -------------------------------- */
+
+/*
+  Editing affordance drawn over the real content, in the frame's own coordinate
+  space so percentages line up with what the element renders. Transparent to
+  pointers except on the boxes themselves, so dragging the photo still works
+  everywhere else.
+*/
+.preview-float-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.preview-float {
+  position: absolute;
+  pointer-events: auto;
+  cursor: move;
+  outline: 1px dashed var(--calib);
+  outline-offset: -1px;
+}
+
+.preview-float-label {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  padding: 2px 5px;
+  font: 10px/1.4 var(--mono);
+  color: var(--bench-sunk);
+  background: var(--calib);
+  white-space: nowrap;
+}
+
+.preview-float-handle {
+  position: absolute;
+  width: var(--handle, 11px);
+  height: var(--handle, 11px);
+  background: var(--calib);
+  pointer-events: auto;
+}
+.preview-float-handle.is-nw { left: 0; top: 0; transform: translate(-50%, -50%); cursor: nwse-resize; }
+.preview-float-handle.is-ne { right: 0; top: 0; transform: translate(50%, -50%); cursor: nesw-resize; }
+.preview-float-handle.is-se { right: 0; bottom: 0; transform: translate(50%, 50%); cursor: nwse-resize; }
+.preview-float-handle.is-sw { left: 0; bottom: 0; transform: translate(-50%, 50%); cursor: nesw-resize; }
+
+/* ---- Mode switch --------------------------------------------------------- */
+
+.modes {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--bench-sunk);
+}
+
+.mode {
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-dim);
+  font: 500 11px/1 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.mode:hover:not([disabled]) { color: var(--ink); }
+.mode[aria-pressed='true'] { background: var(--bench-raised); color: var(--ink); }
+.mode[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+/* ---- Placement, alongside the surface it applies to ---------------------- */
+
+.register-placement {
+  flex: 0 0 auto;
+  width: 92px;
+  padding: 2px 4px;
+  font-size: 10px;
+}
+
+/* ---- Viewport presets ---------------------------------------------------- */
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 12px;
+  line-height: 1.1;
+}
+
+.preset-name { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.preset-size { font: 10px/1 var(--mono); color: var(--ink-faint); }
+.preset[aria-pressed='true'] .preset-size { color: var(--calib); }
+
+/* ---- Float alignment grid ------------------------------------------------ */
+
+/*
+  Only while dragging: a permanent grid is clutter, but during a drag it is the
+  thing that makes "line this up" possible without guessing.
+*/
+.preview-float-layer.is-dragging {
+  background-image:
+    repeating-linear-gradient(to right, rgb(255 255 255 / 0.11) 0 1px, transparent 1px var(--grid, 5%)),
+    repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.11) 0 1px, transparent 1px var(--grid, 5%));
+}
+
+/* Drawn where a box actually snapped, so the reason it stopped is visible. */
+.preview-guide {
+  position: absolute;
+  background: var(--mark);
+  box-shadow: 0 0 6px 1px rgb(255 107 53 / 0.6);
+  pointer-events: none;
+}
+.preview-guide.is-x { top: 0; bottom: 0; width: 1px; }
+.preview-guide.is-y { left: 0; right: 0; height: 1px; }
+
+/* The name takes the slack in Screens mode, where the select is the wide part. */
+.register-item .register-name { min-width: 0; }

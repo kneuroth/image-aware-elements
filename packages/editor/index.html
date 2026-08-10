@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>image-aware · mark surfaces</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="bench">
+      <header class="masthead">
+        <div class="lockup">
+          <span class="reticle" aria-hidden="true"></span>
+          <span class="wordmark">image&#8209;aware</span>
+        </div>
+        <div class="modes" role="group" aria-label="Editor mode">
+          <button type="button" id="mode-mark" class="mode" aria-pressed="true">Mark</button>
+          <button type="button" id="mode-screens" class="mode" aria-pressed="false">Screens</button>
+        </div>
+        <div class="file" id="file-readout">no image loaded</div>
+        <div class="masthead-actions">
+          <button type="button" id="save" class="btn btn-primary">Download JSON</button>
+        </div>
+      </header>
+
+      <aside class="rail rail-left">
+        <h2 class="rail-title">Surfaces</h2>
+        <ol class="register" id="surface-list"></ol>
+        <button type="button" id="add-surface" class="btn btn-block">Add surface</button>
+      </aside>
+
+      <main class="well" id="well">
+        <div class="stage" id="stage">
+          <img id="photo" alt="" draggable="false" />
+          <svg id="overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+
+        <div class="preview-holder" id="preview-holder" hidden>
+          <div class="preview-bar" id="preview-presets"></div>
+          <div class="preview-stage" id="preview-stage">
+            <div class="preview-scaler" id="preview-scaler">
+              <div class="preview-frame" id="preview-frame"></div>
+            </div>
+          </div>
+          <div class="preview-report" id="preview-report"></div>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <p class="dropzone-title">Drop a photo here</p>
+          <p class="dropzone-sub">or run <code>npx image-aware ./photo.jpg</code> to edit in place</p>
+        </div>
+
+        <div class="loupe" id="loupe" hidden>
+          <img id="loupe-photo" alt="" />
+          <div class="loupe-reticle"></div>
+        </div>
+
+        <div class="zoombar">
+          <button type="button" class="btn btn-icon" id="zoom-out" title="Zoom out">&minus;</button>
+          <span class="zoom-readout" id="zoom-readout">100%</span>
+          <button type="button" class="btn btn-icon" id="zoom-in" title="Zoom in">+</button>
+          <button type="button" class="btn btn-icon" id="zoom-fit" title="Fit to window">fit</button>
+        </div>
+      </main>
+
+      <aside class="rail rail-right">
+        <div id="inspector"></div>
+        <div id="framing" hidden></div>
+      </aside>
+
+      <footer class="status">
+        <span class="status-cell" id="status-cursor">&mdash;</span>
+        <span class="status-cell" id="status-validity">&mdash;</span>
+        <span class="status-cell status-hint">
+          drag corners &middot; arrows nudge 1px &middot; shift+arrows 10px &middot; scroll to zoom &middot; space+drag to pan
+        </span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

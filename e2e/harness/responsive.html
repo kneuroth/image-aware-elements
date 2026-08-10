@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>image-aware responsive harness</title>
+    <style>
+      html, body { margin: 0; background: #000; }
+
+      /*
+        Pinned to the viewport, because the variants are gated on media queries and
+        those answer to the viewport rather than to any element's box. Resizing the
+        Playwright viewport is therefore the thing under test.
+      */
+      image-surface { position: fixed; inset: 0; }
+
+      .probe-root { position: relative; width: 100%; height: 100%; }
+      .probe { position: absolute; width: 0; height: 0; }
+
+      .content {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #123, #012);
+        color: #cfe4ff;
+        font: 40px/1.3 ui-sans-serif, system-ui, sans-serif;
+        padding: 40px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      No `src` attribute on purpose: the photo comes from the manifest, resolved
+      relative to the manifest URL, and each variant may bring its own.
+    -->
+    <image-surface id="surface" manifest="/desk.responsive.surfaces.json">
+      <div class="probe-root" slot="laptop-screen">
+        <div class="content">
+          Responsive harness
+          <button type="button" id="hit">hit me</button>
+        </div>
+        <div class="probe" data-corner="0" style="left: 0px; top: 0px"></div>
+        <div class="probe" data-corner="1" style="left: 1280px; top: 0px"></div>
+        <div class="probe" data-corner="2" style="left: 1280px; top: 800px"></div>
+        <div class="probe" data-corner="3" style="left: 0px; top: 800px"></div>
+      </div>
+    </image-surface>
+
+    <script type="module">
+      import '@image-aware/element/auto';
+
+      const el = document.querySelector('#surface');
+
+      window.__ready = new Promise((resolve) => {
+        el.addEventListener('image-surface-layout', () => resolve(true), { once: true });
+      });
+
+      window.__hits = 0;
+      document.querySelector('#hit').addEventListener('click', () => {
+        window.__hits += 1;
+      });
+
+      /** Which variant the element settled on, as reported by the layout event. */
+      window.__variant = () => el.variant;
+
+      /** What the browser is actually doing with the photo, not what we asked for. */
+      window.__imageObjectPosition = () =>
+        getComputedStyle(el.shadowRoot.querySelector('[part="image"]')).objectPosition;
+
+      window.__surfaceTransform = () =>
+        getComputedStyle(el.shadowRoot.querySelector('[part="surface"]')).transform;
+
+      window.__isFlat = () => el.hasAttribute('data-flat');
+
+      window.__probes = (selector) =>
+        [...document.querySelectorAll(selector)].map((node) => {
+          const r = node.getBoundingClientRect();
+          return [r.x, r.y];
+        });
+
+      /**
+       * What the maths says those corners should be, in viewport coordinates,
+       * derived from the *active* variant rather than a hardcoded surface list.
+       */
+      window.__expected = (surfaceId) => {
+        const host = el.getBoundingClientRect();
+        const rect = el.layout.imageRect;
+        const surface = window.__manifest.surfaces.find((s) => s.id === surfaceId);
+        return surface.corners.map(([nx, ny]) => [
+          host.left + rect.x + nx * rect.width,
+          host.top + rect.y + ny * rect.height,
+        ]);
+      };
+
+      window.__setFlat = (value) => {
+        if (value === null) el.removeAttribute('flat');
+        else el.setAttribute('flat', value);
+      };
+
+      window.__setObjectPosition = (value) => {
+        if (value === null) el.removeAttribute('object-position');
+        else el.setAttribute('object-position', value);
+      };
+
+      window.__setCssObjectPosition = (value) => {
+        if (value === null) el.style.removeProperty('--image-aware-object-position');
+        else el.style.setProperty('--image-aware-object-position', value);
+        // The custom property is not an observed attribute, so nothing tells the
+        // element to recompute on its own.
+        el.refresh();
+      };
+
+      window.__manifest = await fetch('/desk.responsive.surfaces.json').then((r) => r.json());
+      window.__layout = () => el.layout;
+    </script>
+  </body>
+</html>

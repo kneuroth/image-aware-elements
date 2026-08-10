@@ -1,0 +1,31 @@
+{
+  "name": "@image-aware/editor",
+  "version": "0.1.0",
+  "description": "Mark flat surfaces on a photo and export the manifest that @image-aware/element renders against.",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "bin": {
+    "image-aware": "./bin/image-aware.js"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@image-aware/core": "workspace:*",
+    "@image-aware/element": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^3.2.4"
+  }
+}

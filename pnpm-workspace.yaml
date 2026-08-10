@@ -1,0 +1,13 @@
+packages:
+  - 'packages/*'
+  - 'examples/*'
+  - 'e2e/harness'
+
+# Declared explicitly so `pnpm install` exits 0. The Angular CLI runs its own
+# dependency check by shelling out to pnpm and treats a non-zero exit as fatal,
+# so leaving these unanswered breaks `ng serve`.
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': true
+  lmdb: true
+  msgpackr-extract: true
