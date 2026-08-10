@@ -70,6 +70,14 @@
       window.__surfaceTransform = () =>
         getComputedStyle(el.shadowRoot.querySelector('[part="surface"]')).transform;
 
+      /**
+       * Whether the surface box clips what is slotted into it. Read off the
+       * shadow DOM because that is the only place it is decided — a page cannot
+       * see, let alone undo, a clip imposed in here.
+       */
+      window.__surfaceOverflow = () =>
+        getComputedStyle(el.shadowRoot.querySelector('[part="surface"]')).overflow;
+
       window.__isFlat = () => el.hasAttribute('data-flat');
 
       window.__probes = (selector) =>

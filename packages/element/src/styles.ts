@@ -108,9 +108,24 @@ export const STYLES = /* css */ `
 /*
   Floating: still absolute, but positioned as a share of the element rather than
   by a transform, so it scales with the screen and stays upright.
+
+  It stops clipping too, for the same reason a flow placement does: clip means
+  "keep this content inside the object it was marked onto", and a floated surface
+  is no longer on that object — it is a box the art direction chose. Clipping it
+  there cuts off anything a card legitimately paints outside its own bounds: a
+  drop shadow, a glow, a focus ring. Those are the first things an author reaches
+  for once content is floating on open photograph rather than sitting on a laptop
+  screen, and until now none of them could survive the float.
+
+  Deliberately not made overridable per placement. A page that wants a floated
+  box to clip can set overflow:hidden on its own slotted element, which it
+  controls; nobody outside this shadow root can *remove* a clip we impose, so
+  visible is the only default that leaves both options open.
 */
-[part='surface'][data-placement='float'] {
+[part='surface'][data-placement='float'],
+[part='surface'][data-placement='float'][data-clip='true'] {
   transform: none;
+  overflow: visible;
 }
 
 /* Dropped for this variant. The content stays in the light DOM, unrendered. */

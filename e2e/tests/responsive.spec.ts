@@ -167,3 +167,24 @@ test('drops the projection in flat mode but keeps the content usable', async ({ 
   expect(await call<string>(page, '__surfaceTransform')).not.toBe('none');
   await expectProbesOnSurface(page, 'after leaving flat');
 });
+
+test('stops clipping a surface once it floats off the object', async ({ page }) => {
+  // `clip` means "stay inside the object this was marked onto". While projected
+  // that is the whole point — content must not spill past the laptop's screen.
+  await open(page, 1200, 800);
+  expect(await call<string>(page, '__surfaceOverflow')).toBe('hidden');
+
+  // Floated, the surface is no longer on that object: it is a box the art
+  // direction chose, and clipping it there silently eats everything a card
+  // paints outside its own bounds — drop shadow, glow, focus ring. A page can
+  // add `overflow: hidden` to its own slotted element; it cannot remove one
+  // imposed inside this shadow root, so visible is the only workable default.
+  await resizeTo(page, 360, 800, '(max-width: 380px)');
+  const layout = await call<{ surfaces: { placement: unknown }[] }>(page, '__layout');
+  expect(layout.surfaces[0]!.placement).toEqual({ rect: [0.1, 0.1, 0.8, 0.2] });
+  expect(await call<string>(page, '__surfaceOverflow')).toBe('visible');
+
+  // And the clip comes back with the projection.
+  await resizeTo(page, 1200, 800, undefined);
+  expect(await call<string>(page, '__surfaceOverflow')).toBe('hidden');
+});

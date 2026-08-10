@@ -22,6 +22,12 @@
   ],
   "variants": [
     {
+      "media": "(max-width: 380px)",
+      "placements": {
+        "laptop-screen": { "rect": [0.1, 0.1, 0.8, 0.2] }
+      }
+    },
+    {
       "media": "(max-width: 500px)",
       "flat": true
     },

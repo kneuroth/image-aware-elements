@@ -219,6 +219,13 @@ means the photo does not fill the viewport.
 `{ "rect": [x, y, w, h] }` to float it over the photo at a position in *viewport* fractions.
 `"flat": true` is shorthand for giving every surface `"flow"`.
 
+A surface's `clip` applies **only while it is projected**. Clipping means "stay inside the
+object this was marked onto", and a floated or flowed surface is no longer on that object —
+so it renders unclipped, and a card is free to paint a drop shadow, a glow or a focus ring
+outside its own box. If you want a floated box to clip, set `overflow: hidden` on your own
+slotted element: you can always add a clip, but you cannot reach into the shadow root to
+remove one.
+
 A variant inherits `image`, `surfaces`, `fit`, `crop`, `objectPosition` and `placements`
 from the top level, which may set any of them as its own defaults.
 Overriding `image` **requires** `surfaces` — reusing fractions against a differently shaped
