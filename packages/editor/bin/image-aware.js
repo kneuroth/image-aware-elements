@@ -190,7 +190,18 @@ server.listen(options.port, () => {
     const opener =
       process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
     import('node:child_process').then(({ spawn }) => {
-      spawn(opener, [url], { stdio: 'ignore', detached: true, shell: process.platform === 'win32' }).unref();
+      const child = spawn(opener, [url], {
+        stdio: 'ignore',
+        detached: true,
+        shell: process.platform === 'win32',
+      });
+      // Opening a browser is a convenience. With no opener installed (WSL, a
+      // bare Linux box, a container) spawn emits 'error', which unhandled
+      // takes the whole server down — so say where to go and keep serving.
+      child.on('error', () => {
+        console.log(`  Couldn't open a browser (no ${opener}). Go to ${url}\n`);
+      });
+      child.unref();
     });
   }
 });
