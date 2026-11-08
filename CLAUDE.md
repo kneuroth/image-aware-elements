@@ -182,7 +182,11 @@ The editor excludes them from its published build.
 ## Release
 
 Changesets, with `@image-aware/*` version-locked together (`fixed`) and `@image-aware-example/*`
-ignored. Add a changeset for any user-facing change; `pnpm release` builds then publishes.
+ignored. Add a changeset for any user-facing change, then `pnpm changeset version` and commit
+("Release x.y.z"). `pnpm release` (`scripts/release.sh`) builds, packs each package with pnpm
+and uploads it with **npm**, skipping versions already on npm. Not `changeset publish`: it uses
+pnpm 11's built-in publish, which the registry rejects with a 404 for this account. Publishing
+needs `npm login`, and the account's 2FA may ask for a code — run it in a real terminal.
 
 ## Gotchas
 

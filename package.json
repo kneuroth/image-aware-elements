@@ -12,7 +12,7 @@
     "test": "turbo run test",
     "test:e2e": "playwright test",
     "check-types": "turbo run check-types",
-    "release": "turbo run build && changeset publish",
+    "release": "bash scripts/release.sh",
     "editor": "pnpm --filter @image-aware/editor dev",
     "mark": "turbo run build --filter=@image-aware/editor && image-aware",
     "sandbox": "vite .sandbox --port 5170 --strictPort"
